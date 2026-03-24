@@ -1,0 +1,86 @@
+version: "3.9"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# News Curator – Docker Compose
+# Services: mongo | backend | frontend
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── MongoDB ──────────────────────────────────────────────────────────────
+  mongo:
+    image: mongo:7.0
+    container_name: news_curator_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: news_credibility
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - news_curator_net
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+
+  # ── Backend (Node / Express) ──────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: news_curator_backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      PORT: 5000
+      # MongoDB container – override localhost with the service name
+      MONGO_URI: mongodb://mongo:27017/news_credibility
+      # Sensitive values – supply via .env file or CI/CD secrets, NOT hardcoded
+      JWT_SECRET: ${JWT_SECRET}
+      NEWS_API_KEY: ${NEWS_API_KEY}
+    env_file:
+      - ./backend/.env          # local development fallback (not committed to Git)
+    ports:
+      - "5000:5000"
+    networks:
+      - news_curator_net
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── Frontend (React → Nginx) ──────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Baked into the static bundle at build time
+        REACT_APP_API_URL: http://localhost:5000
+        REACT_APP_OPENWEATHER_API_KEY: ${REACT_APP_OPENWEATHER_API_KEY}
+    container_name: news_curator_frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - news_curator_net
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Volumes & Networks
+# ─────────────────────────────────────────────────────────────────────────────
+volumes:
+  mongo_data:
+    driver: local
+
+networks:
+  news_curator_net:
+    driver: bridge

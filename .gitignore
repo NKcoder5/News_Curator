@@ -26,3 +26,9 @@ Thumbs.db
 *.local
 *.log
 *.cache
+
+# === Docker & Secrets ===
+.env
+.env.deploy
+.env.*
+**/ .env.*
