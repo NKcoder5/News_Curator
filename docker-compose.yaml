@@ -62,7 +62,6 @@ services:
       dockerfile: Dockerfile
       args:
         # Baked into the static bundle at build time
-        REACT_APP_API_URL: http://localhost:5000
         REACT_APP_OPENWEATHER_API_KEY: ${REACT_APP_OPENWEATHER_API_KEY}
     container_name: news_curator_frontend
     restart: unless-stopped

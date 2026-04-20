@@ -20,10 +20,6 @@ COPY . .
 ARG REACT_APP_OPENWEATHER_API_KEY
 ENV REACT_APP_OPENWEATHER_API_KEY=$REACT_APP_OPENWEATHER_API_KEY
 
-# REACT_APP_API_URL lets the frontend know the backend address at runtime
-ARG REACT_APP_API_URL=http://localhost:5000
-ENV REACT_APP_API_URL=$REACT_APP_API_URL
-
 RUN npm run build
 
 # ─── Stage 3: Serve via Nginx ─────────────────────────────────────────────────

@@ -80,7 +80,6 @@ pipeline {
                     steps {
                         sh """
                             docker build \
-                                --build-arg REACT_APP_API_URL=http://backend:5000 \
                                 --build-arg REACT_APP_OPENWEATHER_API_KEY=${REACT_APP_OPENWEATHER_API_KEY} \
                                 -t ${FRONTEND_IMAGE}:${IMAGE_TAG} \
                                 -t ${FRONTEND_IMAGE}:latest \
