@@ -226,7 +226,7 @@ const LandingPage = () => {
         <div className="footer-grid">
           <div className="footer-column">
             <h3>Smart News Analysis</h3>
-            <p>AI-powered credibility scoring and summarization for the modern reader</p>
+            <p>AI-powered credibility scoring & summarization for the modern reader</p>
             <div className="social-icons">
               <a href="https://twitter.com/" className="social-icon" aria-label="Twitter">
                 <i className="fab fa-twitter"></i>
