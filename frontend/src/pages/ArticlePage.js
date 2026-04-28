@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../services/api';
 import FeedbackModal from '../components/FeedbackModal';
 import '../styles/ArticlePage.css';
 
@@ -32,7 +32,7 @@ const ArticlePage = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      await axios.post('http://localhost:5000/api/tracking/activity', {
+      await api.post('/tracking/activity', {
         articleId: article.url,
         title: article.title,
         category: article.category || 'general',
@@ -40,10 +40,6 @@ const ArticlePage = () => {
         activityType,
         duration,
         completed: activityType === 'read'
-      }, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
       });
     } catch (error) {
       // Silently handle errors
@@ -87,13 +83,7 @@ const ArticlePage = () => {
           return;
       }
 
-      // Get the token from localStorage
-      const token = localStorage.getItem('token');
-      
-      // Add authorization header if token exists
-      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-
-      const response = await axios.post(`http://localhost:5000${endpoint}`, body, { headers });
+      const response = await api.post(endpoint.replace('/api', ''), body);
 
       switch (type) {
         case 'summary':
@@ -153,8 +143,8 @@ const ArticlePage = () => {
       if (isAuthenticated && article) {
         try {
           const token = localStorage.getItem('token');
-          await axios.post(
-            'http://localhost:5000/api/article-history/track-view',
+          await api.post(
+            '/article-history/track-view',
             {
               articleId: article.url,
               title: article.title,
@@ -181,7 +171,7 @@ const ArticlePage = () => {
       if (!article) return;
       
       try {
-        const response = await axios.get(`http://localhost:5000/api/article-feedback/all/${encodeURIComponent(article.url)}`);
+        const response = await api.get(`/article-feedback/all/${encodeURIComponent(article.url)}`);
         setArticleFeedbacks(response.data.data || []);
       } catch (error) {
         console.error('Error fetching article feedbacks:', error);
@@ -197,8 +187,8 @@ const ArticlePage = () => {
     if (isAuthenticated && article) {
       try {
         const token = localStorage.getItem('token');
-        await axios.post(
-          'http://localhost:5000/api/article-history/update-quiz',
+        await api.post(
+          '/article-history/update-quiz',
           {
             articleId: article.url,
             score: score
@@ -230,8 +220,8 @@ const ArticlePage = () => {
       }
 
       // Submit feedback to the backend
-      await axios.post(
-        'http://localhost:5000/api/article-feedback/submit',
+      await api.post(
+        '/article-feedback/submit',
         {
           articleId: article.url,
           feedback: userFeedback.feedback,

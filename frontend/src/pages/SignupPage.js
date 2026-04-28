@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 import { useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, CheckCircle, AlertCircle } from 'lucide-react';
 import '../styles/SignupPage.css';
@@ -67,7 +67,7 @@ const SignupPage = ({ setUser }) => {
     setIsLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', {
+      const res = await api.post('/auth/signup', {
         email,
         password,
       });
